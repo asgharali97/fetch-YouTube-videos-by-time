@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,17 +18,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
 import {useForm} from 'react-hook-form';
 const Form = ({ button }) => {
-
+  const [date, setDate] = useState()
   const { handleSubmit, register, watch, setValue, control, getValues } = useForm();
  
-  
-
   const submit = (e)=>{
-    setDate(e.target.value)
+    console.log(e)
   }
+  // const transformDate = useCallback((value)=>{
+  //   if(typeof value === 'string'){
+  //     return value
+  //   }
+  //   return ""
+  // },[])
+  // useEffect(() => {
+  //   const sub = watch((value,{name}) =>{
+  //     if(name === 'date'){
+  //       setValue('option',transformDate(value.date),{shouldValidate:true})
+  //     }
+  //   })
+  //   return () => sub.unsubscribe();
+  // },[watch,transformDate,setValue])
   return (
     <Dialog className="bg-[#DCD7C9]">
       <DialogTrigger asChild>{button}</DialogTrigger>
@@ -38,6 +50,7 @@ const Form = ({ button }) => {
             Search by your favourite content creator videos by particular time
           </DialogDescription>
         </DialogHeader>
+        <form onSubmit={handleSubmit(submit)}>
         <div className="grid gap-4 py-4">
           <div className="">
             <Label htmlFor="username" className="inline-block mb-4">
@@ -70,13 +83,21 @@ const Form = ({ button }) => {
           <div>
             <Select>
               <SelectTrigger className="w-full bg-white mt-2">
-                <SelectValue placeholder={`Do you want search  before or after`} />
+                <SelectValue placeholder={`Do you want search ${date}  before or after`} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="before">Before</SelectItem>
                 <SelectItem value="after">After</SelectItem>
               </SelectContent>
             </Select>
+            {/* <select
+              className="w-full h-9 rounded-md flex border border-input px-3 py-3 bg-white text-base shadow-sm mt-2"
+              {...register('option')}
+            >
+              <option value="">Do you want search ${date}  before or after</option>
+              <option value="before">Before</option>
+              <option value="after">After</option>
+            </select> */}
           </div>
         </div>
         <div className="flex justify-center">
@@ -89,6 +110,7 @@ const Form = ({ button }) => {
             </Button>
           </DialogFooter>
         </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
