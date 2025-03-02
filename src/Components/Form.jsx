@@ -20,26 +20,13 @@ import {
 } from "@/components/ui/select";
 import {useForm} from 'react-hook-form';
 const Form = ({ button }) => {
-  const [date, setDate] = useState()
+  const [date, setDate] = useState("")
   const { handleSubmit, register, watch, setValue, control, getValues } = useForm();
- 
-  const submit = (e)=>{
-    console.log(e)
-  }
-  // const transformDate = useCallback((value)=>{
-  //   if(typeof value === 'string'){
-  //     return value
-  //   }
-  //   return ""
-  // },[])
-  // useEffect(() => {
-  //   const sub = watch((value,{name}) =>{
-  //     if(name === 'date'){
-  //       setValue('option',transformDate(value.date),{shouldValidate:true})
-  //     }
-  //   })
-  //   return () => sub.unsubscribe();
-  // },[watch,transformDate,setValue])
+  const [option, setOption] = useState("");
+  const submit = (data) => {
+    console.log(data);
+    console.log("Selected option:", option);
+  };
   return (
     <Dialog className="bg-[#DCD7C9]">
       <DialogTrigger asChild>{button}</DialogTrigger>
@@ -77,27 +64,20 @@ const Form = ({ button }) => {
               placeholder="2023-2-4"
               {...register("date", {
                 required: true,
+                onChange: (e) => setDate(e.target.value),
               })}
             />
           </div>
           <div>
-            <Select>
+            <Select onValueChange={(value) => setOption(value)} className="w-full">
               <SelectTrigger className="w-full bg-white mt-2">
-                <SelectValue placeholder={`Do you want search ${date}  before or after`} />
+                <SelectValue placeholder={`Do you want search before ${date} or after`} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="before">Before</SelectItem>
                 <SelectItem value="after">After</SelectItem>
               </SelectContent>
             </Select>
-            {/* <select
-              className="w-full h-9 rounded-md flex border border-input px-3 py-3 bg-white text-base shadow-sm mt-2"
-              {...register('option')}
-            >
-              <option value="">Do you want search ${date}  before or after</option>
-              <option value="before">Before</option>
-              <option value="after">After</option>
-            </select> */}
           </div>
         </div>
         <div className="flex justify-center">
