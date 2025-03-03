@@ -18,17 +18,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {useForm} from 'react-hook-form';
+import {useForm,Controller} from 'react-hook-form';
+
 const Form = ({ button }) => {
   const [date, setDate] = useState("")
+  const [open,setOpen] = useState(false);
   const { handleSubmit, register, watch, setValue, control, getValues } = useForm();
-  const [option, setOption] = useState("");
   const submit = (data) => {
     console.log(data);
-    console.log("Selected option:", option);
+    setOpen(false);
   };
   return (
-    <Dialog className="bg-[#DCD7C9]">
+    <Dialog open={open} onOpenChange={setOpen} className="bg-[#DCD7C9]">
       <DialogTrigger asChild>{button}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader className="flex flex-col items-center gap-2">
@@ -69,7 +70,15 @@ const Form = ({ button }) => {
             />
           </div>
           <div>
-            <Select onValueChange={(value) => setOption(value)} className="w-full">
+            <Controller 
+             name="option"
+             control={control}
+             defaultValue=""
+             render={({field}) => (
+               <Select onValueChange={(value) => {
+                 field.onChange(value)
+            }
+            } className="w-full">
               <SelectTrigger className="w-full bg-white mt-2">
                 <SelectValue placeholder={`Do you want search before ${date} or after`} />
               </SelectTrigger>
@@ -78,6 +87,8 @@ const Form = ({ button }) => {
                 <SelectItem value="after">After</SelectItem>
               </SelectContent>
             </Select>
+        )}
+        />
           </div>
         </div>
         <div className="flex justify-center">
