@@ -23,20 +23,18 @@ import { useForm, Controller } from "react-hook-form";
 const Form = ({ button }) => {
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
-  const { handleSubmit, register, watch, setValue, control, getValues } =
+  const { handleSubmit, register, watch, setValue, control, getValues,formState:{errors} } =
     useForm();
 
   const convertUsernameIntoId = async (username, apiKey) => {
     // Remove "@" if present
-    const normalizedUsername = username.replace(/^@/, "");
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${normalizedUsername}&key=${apiKey}`;
+    const query = username.replace(/^@/, "");
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${apiKey}`;
     try {
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data)
       if (data.items && data.items.length > 0) {
         const channelId = data.items[0].id;
-        console.log("Channel ID:", channelId);
         return channelId;
       } else {
         console.log("Channel not found");
@@ -49,7 +47,11 @@ const Form = ({ button }) => {
   // convertUsernameIntoId("@chaiaurcode",import.meta.env.VITE_YOUTUBE_API_KEY);
 
   const submit = (data) => {
-    console.log(data);
+    // get data fi
+    const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
+    const convertedUserName = convertUsernameIntoId(data.username,API_KEY)
+    const convertedDate = data.date
+    const response = fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`);
     setOpen(false);
   };
 
@@ -66,7 +68,7 @@ const Form = ({ button }) => {
         <form onSubmit={handleSubmit(submit)}>
           <div className="grid gap-4 py-4">
             <div className="">
-              <Label htmlFor="username" className="inline-block mb-4">
+              <Label htmlFor="username" className={`inline-block mb-4 ${errors.username && 'text-[#b70a12]'}`}>
                 Enter the username of channel
               </Label>
               <Input
@@ -76,11 +78,16 @@ const Form = ({ button }) => {
                 placeholder="@username"
                 {...register("username", {
                   required: true,
+                  validate:{
+                    matchPattern :(value) => /^@[\w]+$/.test(value) ||
+                    'Please start username with @',
+                  }
                 })}
               />
+              {errors.username && <p className="text-[#b70a12] px-1 py-2">{errors.username.message}</p>}
             </div>
             <div className="">
-              <Label htmlFor="date" className="inline-block mb-4">
+              <Label htmlFor="date" className={`inline-block mb-4 ${errors.date && 'text-[#b70a12]'}`}>
                 Enter the Date
               </Label>
               <Input
@@ -89,14 +96,18 @@ const Form = ({ button }) => {
                 className="bg-white"
                 placeholder="2023-2-4"
                 {...register("date", {
-                  required: true,
-                  onChange: (e) => setDate(e.target.value),
-                })}
+                required:"Please enter date that time you want search",  
+                onChange: (e) => setDate(e.target.value)
+              })}
               />
+              {errors.date && <p className="text-[#b70a12] px-1 py-2">{errors.date.message}</p>}
             </div>
             <div>
               <Controller
                 name="option"
+                rules={{
+                  required: "Please select any option to search",
+                }}
                 control={control}
                 defaultValue=""
                 render={({ field }) => (
@@ -112,12 +123,13 @@ const Form = ({ button }) => {
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="before">Before</SelectItem>
-                      <SelectItem value="after">After</SelectItem>
+                      <SelectItem value="Before">Before</SelectItem>
+                      <SelectItem value="After">After</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
+              {/* {errors.option && <p className="text-[#b70a12] px-1 py-2">{errors.option.message}</p>} */}
             </div>
           </div>
           <div className="flex justify-center">
