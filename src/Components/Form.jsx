@@ -19,23 +19,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
+import { useNavigate, Link } from "react-router-dom";
 
 const Form = ({ button }) => {
+  const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
-  const { handleSubmit, register, watch, setValue, control, getValues,formState:{errors} } =
-    useForm();
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    control,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
   const convertUsernameIntoId = async (username, apiKey) => {
     // Remove "@" if present
     const query = username.replace(/^@/, "");
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${apiKey}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
+      query
+    )}&type=channel&key=${apiKey}`;
     try {
       const response = await fetch(url);
       const data = await response.json();
       if (data.items && data.items.length > 0) {
         const channelId = data.items[0].id;
-        return channelId;
+        // console.log(channelId.channelId);
+        return channelId.channelId;
       } else {
         console.log("Channel not found");
       }
@@ -44,14 +56,28 @@ const Form = ({ button }) => {
     }
   };
 
-  // convertUsernameIntoId("@chaiaurcode",import.meta.env.VITE_YOUTUBE_API_KEY);
+  const convertDate = (data) => {
+    const date = new Date(data);
+    const isoDate = date.toISOString().replace(/\.\d+Z$/, "Z");
+    return isoDate;
+  };
 
-  const submit = (data) => {
-    // get data fi
-    const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
-    const convertedUserName = convertUsernameIntoId(data.username,API_KEY)
-    const convertedDate = data.date
-    const response = fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`);
+  const submit = async (data) => {
+    console.log(data);
+    const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+    const convertedUserName = await convertUsernameIntoId(
+      data.username,
+      API_KEY
+    );
+    console.log(convertedUserName);
+    const convertedDate = convertDate(data.date);
+    const fetchData = fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`
+    );
+    fetchData
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+    navigate("/videos");
     setOpen(false);
   };
 
@@ -68,7 +94,12 @@ const Form = ({ button }) => {
         <form onSubmit={handleSubmit(submit)}>
           <div className="grid gap-4 py-4">
             <div className="">
-              <Label htmlFor="username" className={`inline-block mb-4 ${errors.username && 'text-[#b70a12]'}`}>
+              <Label
+                htmlFor="username"
+                className={`inline-block mb-4 ${
+                  errors.username && "text-[#b70a12]"
+                }`}
+              >
                 Enter the username of channel
               </Label>
               <Input
@@ -78,16 +109,25 @@ const Form = ({ button }) => {
                 placeholder="@username"
                 {...register("username", {
                   required: true,
-                  validate:{
-                    matchPattern :(value) => /^@[\w]+$/.test(value) ||
-                    'Please start username with @',
-                  }
+                  validate: {
+                    matchPattern: (value) =>
+                      /^@[\w]+$/.test(value) || "Please start username with @",
+                  },
                 })}
               />
-              {errors.username && <p className="text-[#b70a12] px-1 py-2">{errors.username.message}</p>}
+              {errors.username && (
+                <p className="text-[#b70a12] px-1 py-2">
+                  {errors.username.message}
+                </p>
+              )}
             </div>
             <div className="">
-              <Label htmlFor="date" className={`inline-block mb-4 ${errors.date && 'text-[#b70a12]'}`}>
+              <Label
+                htmlFor="date"
+                className={`inline-block mb-4 ${
+                  errors.date && "text-[#b70a12]"
+                }`}
+              >
                 Enter the Date
               </Label>
               <Input
@@ -96,11 +136,15 @@ const Form = ({ button }) => {
                 className="bg-white"
                 placeholder="2023-2-4"
                 {...register("date", {
-                required:"Please enter date that time you want search",  
-                onChange: (e) => setDate(e.target.value)
-              })}
+                  required: "Please enter date that time you want search",
+                  onChange: (e) => setDate(e.target.value),
+                })}
               />
-              {errors.date && <p className="text-[#b70a12] px-1 py-2">{errors.date.message}</p>}
+              {errors.date && (
+                <p className="text-[#b70a12] px-1 py-2">
+                  {errors.date.message}
+                </p>
+              )}
             </div>
             <div>
               <Controller
@@ -129,7 +173,7 @@ const Form = ({ button }) => {
                   </Select>
                 )}
               />
-              {/* {errors.option && <p className="text-[#b70a12] px-1 py-2">{errors.option.message}</p>} */}
+              {/* {errors.option && <p className="text-[#b70a12x] px-1 py-2">{errors.option.message}</p>} */}
             </div>
           </div>
           <div className="flex justify-center">
@@ -138,7 +182,7 @@ const Form = ({ button }) => {
                 type="submit"
                 className="bg-[#3F4F44] text-white hover:bg-[#2C3930] cursor-pointer"
               >
-                Save changes
+                Search
               </Button>
             </DialogFooter>
           </div>

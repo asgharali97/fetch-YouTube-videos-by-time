@@ -1,6 +1,7 @@
 import React from "react";
 import NavBar from "./Components/NavBar";
 import HeroSection from "./Components/HeroSection";
+import { Outlet } from "react-router-dom";
 
 function App() {
   // const comment =https://www.googleapis.com/youtube/v3/commentThreads?part=snippet,replies&videoId=Wld2pSTFh_M&t=19s&key=AIzaSyChNQsTOfdYxgtoRQBFMDETaPmWi5gLEzM
@@ -23,7 +24,7 @@ function App() {
     <>
       <div className="w-full min-w-7xl min-h-screen bg-[#333A35]">
         <NavBar />
-        <HeroSection />
+        <Outlet />
       </div>
     </>
   );
