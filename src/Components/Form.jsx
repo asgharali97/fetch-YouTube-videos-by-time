@@ -19,9 +19,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import {useVideoContext} from "../Context/context";
 
 const Form = ({ button }) => {
+  const { setVideos } = useVideoContext();
   const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
@@ -71,124 +73,135 @@ const Form = ({ button }) => {
     );
     console.log(convertedUserName);
     const convertedDate = convertDate(data.date);
-    const fetchData = fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`
-    );
-    fetchData
-      .then((response) => response.json())
-      .then((data) => console.log(data));
-    navigate("/videos");
+    const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`
+    try{
+      const response = await fetch(fetchUrl);
+      const result = await response.json();
+      setVideos(result.items); 
+      navigate("/videos");
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+
+      
+
+      
+      
+      navigate("/videos");
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} className="bg-[#DCD7C9]">
-      <DialogTrigger asChild>{button}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader className="flex flex-col items-center gap-2">
-          <DialogTitle className="font-bold">Start Searching</DialogTitle>
-          <DialogDescription className="text-center text-md font-medium">
-            Search by your favourite content creator videos by particular time
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(submit)}>
-          <div className="grid gap-4 py-4">
-            <div className="">
-              <Label
-                htmlFor="username"
-                className={`inline-block mb-4 ${
-                  errors.username && "text-[#b70a12]"
-                }`}
-              >
-                Enter the username of channel
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                className=" bg-white"
-                placeholder="@username"
-                {...register("username", {
-                  required: true,
-                  validate: {
-                    matchPattern: (value) =>
-                      /^@[\w]+$/.test(value) || "Please start username with @",
-                  },
-                })}
-              />
-              {errors.username && (
-                <p className="text-[#b70a12] px-1 py-2">
-                  {errors.username.message}
-                </p>
-              )}
-            </div>
-            <div className="">
-              <Label
-                htmlFor="date"
-                className={`inline-block mb-4 ${
-                  errors.date && "text-[#b70a12]"
-                }`}
-              >
-                Enter the Date
-              </Label>
-              <Input
-                id="date"
-                type="date"
-                className="bg-white"
-                placeholder="2023-2-4"
-                {...register("date", {
-                  required: "Please enter date that time you want search",
-                  onChange: (e) => setDate(e.target.value),
-                })}
-              />
-              {errors.date && (
-                <p className="text-[#b70a12] px-1 py-2">
-                  {errors.date.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <Controller
-                name="option"
-                rules={{
-                  required: "Please select any option to search",
-                }}
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    className="w-full"
-                  >
-                    <SelectTrigger className="w-full bg-white mt-2">
-                      <SelectValue
-                        placeholder={`Do you want search before ${date} or after`}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Before">Before</SelectItem>
-                      <SelectItem value="After">After</SelectItem>
-                    </SelectContent>
-                  </Select>
+    <>
+      <Dialog open={open} onOpenChange={setOpen} className="bg-[#DCD7C9]">
+        <DialogTrigger asChild>{button}</DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader className="flex flex-col items-center gap-2">
+            <DialogTitle className="font-bold">Start Searching</DialogTitle>
+            <DialogDescription className="text-center text-md font-medium">
+              Search by your favourite content creator videos by particular time
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(submit)}>
+            <div className="grid gap-4 py-4">
+              <div className="">
+                <Label
+                  htmlFor="username"
+                  className={`inline-block mb-4 ${
+                    errors.username && "text-[#b70a12]"
+                  }`}
+                >
+                  Enter the username of channel
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  className=" bg-white"
+                  placeholder="@username"
+                  {...register("username", {
+                    required: true,
+                    validate: {
+                      matchPattern: (value) =>
+                        /^@[\w]+$/.test(value) ||
+                        "Please start username with @",
+                    },
+                  })}
+                />
+                {errors.username && (
+                  <p className="text-[#b70a12] px-1 py-2">
+                    {errors.username.message}
+                  </p>
                 )}
-              />
-              {/* {errors.option && <p className="text-[#b70a12x] px-1 py-2">{errors.option.message}</p>} */}
+              </div>
+              <div className="">
+                <Label
+                  htmlFor="date"
+                  className={`inline-block mb-4 ${
+                    errors.date && "text-[#b70a12]"
+                  }`}
+                >
+                  Enter the Date
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  className="bg-white"
+                  placeholder="2023-2-4"
+                  {...register("date", {
+                    required: "Please enter date that time you want search",
+                    onChange: (e) => setDate(e.target.value),
+                  })}
+                />
+                {errors.date && (
+                  <p className="text-[#b70a12] px-1 py-2">
+                    {errors.date.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Controller
+                  name="option"
+                  rules={{
+                    required: "Please select any option to search",
+                  }}
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      className="w-full"
+                    >
+                      <SelectTrigger className="w-full bg-white mt-2">
+                        <SelectValue
+                          placeholder={`Do you want search before ${date} or after`}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Before">Before</SelectItem>
+                        <SelectItem value="After">After</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {/* {errors.option && <p className="text-[#b70a12x] px-1 py-2">{errors.option.message}</p>} */}
+              </div>
             </div>
-          </div>
-          <div className="flex justify-center">
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="bg-[#3F4F44] text-white hover:bg-[#2C3930] cursor-pointer"
-              >
-                Search
-              </Button>
-            </DialogFooter>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <div className="flex justify-center">
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="bg-[#3F4F44] text-white hover:bg-[#2C3930] cursor-pointer"
+                >
+                  Search
+                </Button>
+              </DialogFooter>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

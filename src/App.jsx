@@ -2,7 +2,6 @@ import React from "react";
 import NavBar from "./Components/NavBar";
 import { Outlet } from "react-router-dom";
 import { VideoContextProvider } from "./Context/context";
-
 function App() {
   // const comment =https://www.googleapis.com/youtube/v3/commentThreads?part=snippet,replies&videoId=Wld2pSTFh_M&t=19s&key=AIzaSyChNQsTOfdYxgtoRQBFMDETaPmWi5gLEzM
 
