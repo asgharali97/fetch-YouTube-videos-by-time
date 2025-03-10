@@ -82,14 +82,8 @@ const Form = ({ button }) => {
     } catch (error) {
       console.error("API Error:", error);
     }
-
-      
-
-      
-      
-      navigate("/videos");
     setOpen(false);
-  };
+};
 
   return (
     <>
