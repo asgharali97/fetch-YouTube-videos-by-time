@@ -5,33 +5,33 @@ const Video = () => {
   console.log("videos data :: ", videos);
   return (
     <>
-      <div className="w-full px-6 py-4 grid grid-cols-3">
-
-  {videos?.map((item) => {
+      <div className="w-full px-6 py-4 flex flex-wrap justify-center">
+        {videos?.map((item) => {
+          let thumbnails = item.snippet.thumbnails.high.url;
+          let thumbnail = thumbnails.replace("/hqdefault","/hq720");
+          console.log(thumbnail)
           return (
-            <div key={item.snippet.videoId} className="w-96 h-48 flex flex-col">
-              <div className="img py-4">
-                <img
-                  src={item.snippet.thumbnails.high.url}
-                  className="w-full object-cover rounded-lg"
-                  alt="thumbnail"
-                />
+          <div key={item.id.videoId} className="mr-2 ml-2 my-4 w-96 h-72">
+          <div className="flex flex-col h-full relative">
+            <div className="img h-[300px]">
+              <img className="rounded-md object-cover" src={thumbnail} alt="" />
+            </div>
+            <div className="content flex text-white">
+              <div className="avtar mt-3 mr-3">
+                <img className="rounded-full h-12 w-12" src="" alt="avtar" />
               </div>
-              <div className="content w-full flex flex-row cursor-pointer">
-                <div className="avtar mr-3">
-                  <img
-                    className="w-10 h-10 rounded-full"
-                    src="https://yt3.ggpht.com/6tLBV-DRVemxhmanuezR5HkHshX2g7Y46Rq8cysyO1V-nd2SaQ2Fi8cdgVM-n6v_8XZ5BEimxXI=s68-c-k-c0x00ffffff-no-rj"
-                    alt=""
-                  />
+              <div className="content-detail h-full w-full">
+                <div className="mt-3">
+                <h3 className="text-lg font-medium">{item.snippet.title}</h3>
+                <div className="flex justify-between items-center text-gray-300">
+                <h4 className="text-sm font-normal">{item.snippet.channelTitle}</h4>
+                <h4>{item.snippet.publishedAt}</h4>
                 </div>
-                <div className="content-detail flex flex-col items-center ">
-                  <h2 className="text-2xl font-bold ">{item.snippet.title}</h2>
-                  <span className="text-xl font-normal ml-1">{item.snippet.channelTitle}</span>
-                  <span className="text-lg font-normal">{item.snippet.publishedAt}</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
           );
         })}
       </div>
