@@ -23,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 import {useVideoContext} from "../Context/context";
 
 const Form = ({ button }) => {
-  const { setVideos } = useVideoContext();
+  const { setVideos, setAvtar } = useVideoContext();
   const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
@@ -46,9 +46,11 @@ const Form = ({ button }) => {
     try {
       const response = await fetch(url);
       const data = await response.json();
+      console.log(data.items[0].snippet.thumbnails.high.url);
       if (data.items && data.items.length > 0) {
         const channelId = data.items[0].id;
-        // console.log(channelId.channelId);
+        const avtarUrl = data.items[0].snippet.thumbnails.high.url;
+        setAvtar(avtarUrl);
         return channelId.channelId;
       } else {
         console.log("Channel not found");
@@ -65,13 +67,11 @@ const Form = ({ button }) => {
   };
 
   const submit = async (data) => {
-    console.log(data);
     const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
     const convertedUserName = await convertUsernameIntoId(
       data.username,
       API_KEY
     );
-    console.log(convertedUserName);
     const convertedDate = convertDate(data.date);
     const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`
     try{
