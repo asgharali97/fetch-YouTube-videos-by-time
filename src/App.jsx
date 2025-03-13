@@ -1,5 +1,4 @@
 import React from "react";
-import NavBar from "./Components/NavBar";
 import { Outlet } from "react-router-dom";
 import { VideoContextProvider } from "./Context/context";
 function App() {
@@ -23,7 +22,6 @@ function App() {
     <>
       <div className="w-full min-w-7xl min-h-screen bg-[#333A35]">
         <VideoContextProvider>
-        <NavBar />
         <Outlet />
         </VideoContextProvider>
       </div>

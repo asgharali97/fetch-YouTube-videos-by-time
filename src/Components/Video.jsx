@@ -1,11 +1,13 @@
 import { useVideoContext } from "@/Context/context";
 import { Link } from "react-router-dom";
+import NavBar from "./NavBar";
 
 const Video = () => {
   const { videos, avtar } = useVideoContext();
   console.log("videos data :: ", videos);
   return (
     <>
+    <NavBar isVideo={true}/>
       <div className="w-full min-h-[100vh] px-6 py-4 flex flex-wrap justify-center">
         {videos?.map((item) => {
           let thumbnails = item.snippet.thumbnails.high.url;

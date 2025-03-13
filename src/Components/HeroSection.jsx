@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "./Form";
+import NavBar from './NavBar'
 const HeroSection = () => {
   // Button warrring sol:
   // const SearchButton = React.forwardRef((props,ref) => {
@@ -14,6 +15,7 @@ const HeroSection = () => {
   // });
   return (
     <>
+    <NavBar />
       <div className="w-full py-4 px-2 mt-16">
         <div className="flex justify-center">
           <h1 className="text-3xl font-bold text-white flex flex-col items-center">
