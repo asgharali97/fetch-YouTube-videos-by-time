@@ -20,20 +20,18 @@ import {
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {useVideoContext} from "../Context/context";
+import { useVideoContext } from "../Context/context";
 
 const Form = ({ button }) => {
   const { setVideos, setAvtar } = useVideoContext();
   const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState(false);
   const {
     handleSubmit,
     register,
-    watch,
-    setValue,
     control,
-    getValues,
     formState: { errors },
   } = useForm();
 
@@ -46,13 +44,14 @@ const Form = ({ button }) => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data.items[0].snippet.thumbnails.high.url);
+      // console.log(data.items[0].snippet.thumbnails.high.url);
       if (data.items && data.items.length > 0) {
         const channelId = data.items[0].id;
         const avtarUrl = data.items[0].snippet.thumbnails.high.url;
         setAvtar(avtarUrl);
         return channelId.channelId;
       } else {
+        setError(true);
         console.log("Channel not found");
       }
     } catch (error) {
@@ -68,22 +67,28 @@ const Form = ({ button }) => {
 
   const submit = async (data) => {
     const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-    const convertedUserName = await convertUsernameIntoId(
-      data.username,
-      API_KEY
-    );
-    const convertedDate = convertDate(data.date);
-    const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&key=${API_KEY}`
-    try{
+    try {
+      const convertedUserName = await convertUsernameIntoId(
+        data.username,
+        API_KEY
+      );
+      if(!convertedUserName){
+        throw new Error(setError(true));
+      }
+      const convertedDate = convertDate(data.date);
+      const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&maxResults=24&key=${API_KEY}`;
       const response = await fetch(fetchUrl);
       const result = await response.json();
-      setVideos(result.items); 
+      setVideos(result.items);
       navigate("/videos");
     } catch (error) {
       console.error("API Error:", error);
+      setError(true)
     }
-    setOpen(false);
-};
+    if(!error){
+      setOpen(false)
+    }
+  };
 
   return (
     <>
@@ -102,7 +107,7 @@ const Form = ({ button }) => {
                 <Label
                   htmlFor="username"
                   className={`inline-block mb-4 ${
-                    errors.username && "text-[#b70a12]"
+                    (error || errors.username) && "text-[#b70a12]"
                   }`}
                 >
                   Enter the username of channel
@@ -124,6 +129,11 @@ const Form = ({ button }) => {
                 {errors.username && (
                   <p className="text-[#b70a12] px-1 py-2">
                     {errors.username.message}
+                  </p>
+                )}
+                {error && (
+                  <p className="text-[#b70a12] px-1 py-2">
+                    Channel Not found please enter valid username
                   </p>
                 )}
               </div>
