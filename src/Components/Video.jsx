@@ -1,13 +1,20 @@
 import { useVideoContext } from "@/Context/context";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
-
+import useYTApi from "./YTApi";
+import InfiniteScroll from 'react-infinite-scroll-component';
 const Video = () => {
-  const { videos, avtar } = useVideoContext();
-  console.log("videos data :: ", videos);
+  const { videos, avtar} = useVideoContext();
+  const { next } = useYTApi();
+  // setProgress(30)
   return (
     <>
     <NavBar isVideo={true}/>
+    <InfiniteScroll
+    dataLength={videos.length} //This is important field to render the next data
+    next={next}
+    hasMore={true}
+    >
       <div className="w-full min-h-[100vh] px-6 py-4 flex flex-wrap justify-center">
         {videos?.map((item) => {
           let thumbnails = item.snippet.thumbnails.high.url;
@@ -17,8 +24,9 @@ const Video = () => {
           <Link
           to={`https://www.youtube.com/watch?v=${item.id.videoId}`}
           target="_blank"
+          key={item.id.videoId}
           >
-          <div key={item.id.videoId} className="mr-2 ml-2 my-4 w-96 min-h-72 cursor-pointer">
+          <div className="mr-2 ml-2 my-4 w-96 min-h-72 cursor-pointer">
           <div className="flex flex-col h-full relative">
             <div className="img">
               <img className="rounded-md object-cover" src={thumbnail} alt="" />
@@ -43,6 +51,7 @@ const Video = () => {
           );
         })}
       </div>
+      </InfiniteScroll>
     </>
   );
 };

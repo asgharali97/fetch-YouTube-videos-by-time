@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useVideoContext } from "@/Context/context";
+import useYTApi from "./YTApi";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,15 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm, Controller } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useVideoContext } from "../Context/context";
+import moment from "moment";
 
 const Form = ({ button }) => {
-  const { setVideos, setAvtar } = useVideoContext();
-  const navigate = useNavigate();
+  const { submit } = useYTApi();
+  const { open, setOpen, error } = useVideoContext();
   const [date, setDate] = useState("");
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState(false);
   const {
     handleSubmit,
     register,
@@ -35,60 +34,6 @@ const Form = ({ button }) => {
     formState: { errors },
   } = useForm();
 
-  const convertUsernameIntoId = async (username, apiKey) => {
-    // Remove "@" if present
-    const query = username.replace(/^@/, "");
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-      query
-    )}&type=channel&key=${apiKey}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      // console.log(data.items[0].snippet.thumbnails.high.url);
-      if (data.items && data.items.length > 0) {
-        const channelId = data.items[0].id;
-        const avtarUrl = data.items[0].snippet.thumbnails.high.url;
-        setAvtar(avtarUrl);
-        return channelId.channelId;
-      } else {
-        setError(true);
-        console.log("Channel not found");
-      }
-    } catch (error) {
-      console.error("Error fetching channel ID:", error);
-    }
-  };
-
-  const convertDate = (data) => {
-    const date = new Date(data);
-    const isoDate = date.toISOString().replace(/\.\d+Z$/, "Z");
-    return isoDate;
-  };
-
-  const submit = async (data) => {
-    const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-    try {
-      const convertedUserName = await convertUsernameIntoId(
-        data.username,
-        API_KEY
-      );
-      if(!convertedUserName){
-        throw new Error(setError(true));
-      }
-      const convertedDate = convertDate(data.date);
-      const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&maxResults=24&key=${API_KEY}`;
-      const response = await fetch(fetchUrl);
-      const result = await response.json();
-      setVideos(result.items);
-      navigate("/videos");
-    } catch (error) {
-      console.error("API Error:", error);
-      setError(true)
-    }
-    if(!error){
-      setOpen(false)
-    }
-  };
 
   return (
     <>
@@ -98,7 +43,7 @@ const Form = ({ button }) => {
           <DialogHeader className="flex flex-col items-center gap-2">
             <DialogTitle className="font-bold">Start Searching</DialogTitle>
             <DialogDescription className="text-center text-md font-medium">
-              Search by your favourite content creator videos by particular time
+              Search your favourite content creator videos by particular time
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(submit)}>
