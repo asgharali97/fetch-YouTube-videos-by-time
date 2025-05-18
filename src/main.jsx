@@ -19,6 +19,10 @@ const router = createBrowserRouter([
         path: "/videos",
         element: <Video />,
       },
+      {
+        path: "*",
+        element: <HeroSection />,
+      },
     ],
   },
 ]);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useVideoContext } from "@/Context/context";
 import { useNavigate } from "react-router-dom";
 
@@ -17,6 +18,7 @@ const useYTApi = () => {
     setLastOption,
     nextPageToken,
     setNextPageToken,
+    setProgress
   } = useVideoContext();
   const convertUsernameIntoId = async (username, apiKey) => {
     const query = username.replace(/^@/, "");
@@ -33,6 +35,7 @@ const useYTApi = () => {
         console.log(avtarUrl);
         setAvtar(avtarUrl);
         setLastChannelId(channelId.channelId);
+        setProgress(2);
         return channelId.channelId;
       } else {
         console.log("Channel not found");
@@ -46,11 +49,13 @@ const useYTApi = () => {
     const newdate = new Date(data);
     const isoDate = newdate.toISOString().replace(/\.\d+Z$/, "Z");
     setLastDate(isoDate);
+    setProgress(30);
     return isoDate;
   };
 
   const submit = async (data) => {
     setLastOption(data.option);
+    setProgress(4);
     const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
     try {
       const convertedUserName = await convertUsernameIntoId(
@@ -63,6 +68,7 @@ const useYTApi = () => {
       const convertedDate = convertDate(data.date);
       const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&maxResults=42&key=${API_KEY}`;
       const response = await fetch(fetchUrl);
+      setProgress(60);
       const result = await response.json();
       if (!result.items.length) {
         throw new Error(setError(true));
@@ -72,6 +78,7 @@ const useYTApi = () => {
         setNextPageToken(result.nextPageToken);
       }
 
+      setProgress(100);
       setVideos(result.items);
 
       console.log(result);
@@ -87,6 +94,7 @@ const useYTApi = () => {
   const next = async () => {
     console.log('enter in next')
     console.log(nextPageToken)
+    setProgress(20)
     if (!nextPageToken) {
       throw new Error("No next page token available.");
     }
@@ -96,12 +104,15 @@ const useYTApi = () => {
     try {
       const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${lastChannelId}&type=video&published${lastOption}=${lastDate}&maxResults=42&pageToken=${nextPageToken}&key=${API_KEY}`;
       const response = await fetch(fetchUrl);
+      setProgress(40);
       const result = await response.json();
       if (!result.items.length) {
         throw new Error(setError(true));
       }
+      setProgress(90);
       setNextPageToken(result.nextPageToken);
       setVideos((prevVideos) => [...prevVideos, ...result.items]);
+      setProgress(100);
       console.log("Next page token:", nextPageToken);
       console.log(result);
     } catch (error) {
@@ -110,7 +121,8 @@ const useYTApi = () => {
     }
   };
 
-  return { submit, next };
+  return { submit, next};
 };
 
 export default useYTApi;
+
