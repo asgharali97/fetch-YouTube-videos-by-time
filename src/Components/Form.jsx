@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useVideoContext } from "@/Context/context";
 import useYTApi from "./YTApi";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,16 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "./ui/select";
 import { useForm, Controller } from "react-hook-form";
 // import moment from "moment";
 
