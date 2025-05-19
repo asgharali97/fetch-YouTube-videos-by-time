@@ -3,7 +3,9 @@ import { createContext, useContext, useState } from "react";
 const VideoContext = createContext();
 
 export const VideoContextProvider = ({ children }) => {
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState([
+  
+  ]);
   const [avtar, setAvtar] = useState(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);

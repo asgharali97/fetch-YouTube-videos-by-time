@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useVideoContext } from "@/Context/context";
 import { useNavigate } from "react-router-dom";
 
@@ -66,10 +65,19 @@ const useYTApi = () => {
         throw new Error(setError(true));
       }
       const convertedDate = convertDate(data.date);
+      setProgress(15)
       const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${convertedUserName}&type=video&published${data.option}=${convertedDate}&maxResults=42&key=${API_KEY}`;
       const response = await fetch(fetchUrl);
       setProgress(60);
       const result = await response.json();
+      const videoIds = result.items.map((item) => item.id.videoId).join(',');
+      const videoDetailUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoIds}&key=${API_KEY}`;
+      
+      const videoDetailResponse = await fetch(videoDetailUrl);
+      const videoResult = await videoDetailResponse.json();
+      setProgress(80)
+      console.log(videoResult);
+
       if (!result.items.length) {
         throw new Error(setError(true));
       }
@@ -78,9 +86,13 @@ const useYTApi = () => {
         setNextPageToken(result.nextPageToken);
       }
 
-      setProgress(100);
-      setVideos(result.items);
+      setProgress(90);
+      setVideos(() => ({
+        videos: result.items,
+        videosDetails: videoResult.items
+      }));
 
+      setProgress(100)
       console.log(result);
       navigate("/videos");
     } catch (error) {
@@ -104,14 +116,24 @@ const useYTApi = () => {
     try {
       const fetchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${lastChannelId}&type=video&published${lastOption}=${lastDate}&maxResults=42&pageToken=${nextPageToken}&key=${API_KEY}`;
       const response = await fetch(fetchUrl);
-      setProgress(40);
       const result = await response.json();
+      setProgress(40);
+      
+      const videoIds = result.items.map((item) => item.id.videoId).join(',');
+      const videoDetailUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoIds}&key=${API_KEY}`;
+    
+      const videoDetailResponse = await fetch(videoDetailUrl);
+      const videoResult = await videoDetailResponse.json();
+      setProgress(60)
       if (!result.items.length) {
         throw new Error(setError(true));
       }
       setProgress(90);
       setNextPageToken(result.nextPageToken);
-      setVideos((prevVideos) => [...prevVideos, ...result.items]);
+      setVideos((prevVideos) => ({
+        videos: [...prevVideos.videos, ...result.items],
+        videosDetails: [...prevVideos.videosDetails, ...videoResult.items]
+      }));
       setProgress(100);
       console.log("Next page token:", nextPageToken);
       console.log(result);
@@ -123,6 +145,22 @@ const useYTApi = () => {
 
   return { submit, next};
 };
+
+// function YTDurationToSeconds(duration) {
+//   var match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+
+//   match = match.slice(1).map(function(x) {
+//     if (x != null) {
+//         return x.replace(/\D/, '');
+//     }
+//   });
+
+//   var hours = (parseInt(match[0]) || 0);
+//   var minutes = (parseInt(match[1]) || 0);
+//   var seconds = (parseInt(match[2]) || 0);
+
+//   return hours * 3600 + minutes * 60 + seconds;
+// }
 
 export default useYTApi;
 

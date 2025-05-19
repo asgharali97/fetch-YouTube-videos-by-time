@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Form } from "./Form";
 import LoadingBar from "react-top-loading-bar";
@@ -18,7 +17,7 @@ const NavBar = ({ isVideo }) => {
           <div>
             <Form
               button={
-                <Button className="bg-[#DCD7C9] text-black hover:bg-[#2b322d] cursor-pointer">
+                <Button className="bg-[#DCD7C9] text-black hover:bg-[#e3e3e3] cursor-pointer">
                   Search
                 </Button>
 
