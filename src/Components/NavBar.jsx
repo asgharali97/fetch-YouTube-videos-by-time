@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { Form } from "./Form";
 import LoadingBar from "react-top-loading-bar";
 import { useVideoContext } from "@/Context/context";
